@@ -9,6 +9,21 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^5.5.3"
+    "@astrojs/svelte": "^7.0.6",
+    "@tailwindcss/vite": "^4.0.14",
+    "astro": "^5.5.3",
+    "better-auth": "^1.2.4",
+    "daisyui": "^5.0.6",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.1",
+    "pg": "^8.14.1",
+    "svelte": "^5.23.2",
+    "tailwindcss": "^4.0.14",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.5",
+    "tsx": "^4.19.3"
   }
 }
