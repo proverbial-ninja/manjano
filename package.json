@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/pg": "^8.11.11",
+    "@zerodevx/svelte-toast": "^0.9.6",
     "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3"
   }
