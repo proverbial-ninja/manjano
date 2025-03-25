@@ -12,7 +12,7 @@ export const auth = betterAuth({
       user: schema.user,
     },
   }),
-
+  trustedOrigins: ["myapp://"],
   plugins: [admin(), bearer(), expo()],
   emailAndPassword: {
     enabled: true,
