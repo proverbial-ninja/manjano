@@ -1,6 +1,7 @@
 ---
 import Entries from "../../components/Entries.svelte";
+import Layout from "../../layouts/Layout.astro";
 const data = Astro.locals;
 ---
 
-<Entries client:load />
+<Layout><Entries client:load /> </Layout>
