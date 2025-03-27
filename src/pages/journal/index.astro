@@ -1,7 +1,9 @@
 ---
-import Entries from "../../components/Journal.svelte";
+import Journal from "../../components/Journal.svelte";
+import type { user } from "../../db/schema";
 import Layout from "../../layouts/Layout.astro";
 const data = Astro.locals;
 ---
 
-<Layout><Entries client:load /> </Layout>
+{JSON.stringify(data)}
+<Layout><Journal client:load /> </Layout>

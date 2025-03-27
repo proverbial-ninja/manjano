@@ -1,14 +1,51 @@
 <script>
   import { onMount } from "svelte";
   import { authClient } from "../lib/auth-client";
+  import Swal from "sweetalert2";
+  import { toast } from "@zerodevx/svelte-toast";
+  import User from "./User.svelte";
+
   const baseURL = import.meta.env.BASE_URL;
   // State variables
   let journalEntries = [];
   let isLoading = true;
   let error = null;
+  let userId;
+  let title = "";
+  let entry_id = "";
+  let content = "";
+  let isPublic = false;
+  let tags = [];
+  let tagInput = "";
+  let mode;
+
+  // UI state
+  let loading = false;
+
+  let success = false;
+
+  const openEditModal = (entry) => {
+    title = entry.title;
+    content = entry.content;
+    tags = entry.tags;
+    entry_id = entry.id;
+    mode = "edit";
+    document.getElementById("my_modal").showModal();
+  };
+
+  function openCreateModal() {
+    title = "";
+    content = "";
+    tags = [];
+    mode = "create";
+    document.getElementById("my_modal").showModal();
+  }
 
   // Fetch journal entries from API
   onMount(async () => {
+    const { data } = await authClient.getSession();
+    userId = data.user.id;
+
     try {
       const response = await authClient.$fetch(baseURL + "/api/entries");
       journalEntries = response.data;
@@ -96,7 +133,7 @@
   function addNewEntry() {
     if (newEntry.title && newEntry.content) {
       const entry = {
-        id: crypto.randomUUID(), // Temporary ID until server assigns one
+        id: crypto.randomUUID(),
         title: newEntry.title,
         content: newEntry.content,
         mood: newEntry.mood || "Neutral",
@@ -112,13 +149,6 @@
       // Optimistically add to UI
       journalEntries = [entry, ...journalEntries];
 
-      // In a real app, you would POST to the API here
-      // fetch('/api/entries', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(entry)
-      // });
-
       resetNewEntryForm();
     }
   }
@@ -132,12 +162,134 @@
     };
     showNewEntryForm = false;
   }
+
+  async function deleteEntry(entryId) {
+    const { isConfirmed } = await Swal.fire({
+      title: "Delete Entry?",
+      text: "Are you sure you want to delete this journal entry?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (isConfirmed) {
+      const response = await authClient.$fetch(
+        `${baseURL}/api/entries/${entryId}`,
+        { method: "DELETE" }
+      );
+      journalEntries = journalEntries.filter((entry) => entry.id !== entryId);
+
+      toast.push("Entry Deleted");
+    }
+  }
+
+  function addTag() {
+    if (tagInput.trim()) {
+      tags = [...tags, tagInput.trim()];
+      tagInput = "";
+    }
+  }
+
+  function removeTag(index) {
+    tags = tags.filter((_, i) => i !== index);
+  }
+
+  async function handleSubmit() {
+    if (!title || !content || !userId) {
+      error = "Please fill in all required fields";
+      return;
+    }
+
+    loading = true;
+    error = null;
+    success = false;
+    let url;
+    let eid;
+    if (mode === "edit") {
+      eid = entry_id;
+      url = `${baseURL}/api/entries/${entry_id}`;
+    } else {
+      eid = crypto.randomUUID();
+      url = `${baseURL}/api/entries`;
+    }
+
+    try {
+      const response = await authClient.$fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          // Replace with your actual user ID
+          id: eid,
+          title,
+          content,
+          isPublic,
+          tags: tags.length ? tags : null,
+          metadata: {}, // Empty metadata object
+          userId,
+        }),
+      });
+
+      // Add to array after submit
+      if (mode === "edit") {
+        const existingEntryIndex = journalEntries.findIndex(
+          (entry) => entry.id === eid
+        );
+        if (existingEntryIndex !== -1) {
+          journalEntries[existingEntryIndex] = {
+            id: eid,
+            title,
+            content,
+            isPublic,
+            tags,
+            metadata: {},
+            userId: userId,
+            createdAt: journalEntries[existingEntryIndex].createdAt,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+      } else {
+        const newEntry = {
+          id: eid,
+          title,
+          content,
+          isPublic: false,
+          tags,
+          metadata: {},
+          userId: userId,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        journalEntries = [newEntry, ...journalEntries];
+      }
+
+      // Optimistically add to UI
+
+      // Reset form on success
+      title = "";
+      content = "";
+      isPublic = false;
+      tags = [];
+      success = true;
+    } catch (err) {
+      error = err.message;
+    } finally {
+      loading = false;
+    }
+  }
 </script>
 
 <main class="max-w-4xl mx-auto p-4">
-  <header class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-2">My Journal</h1>
-    <p class="text-gray-600">Track your thoughts, moods, and reflections</p>
+  <header class="mb-8 justify-between items-center flex flex-col md:flex-row">
+    <span class="flex flex-row items-center gap-4">
+      <img src="/favicon.png" class="w-12 h-12" alt="" />
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Manjano</h1>
+        <p class="text-gray-600">My Journal , My Reflectios</p>
+      </div>
+    </span>
+    <div><User /></div>
   </header>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -241,93 +393,129 @@
         />
       </div>
       <button
-        on:click={() => (showNewEntryForm = !showNewEntryForm)}
-        class="w-full sm:w-auto px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:bg-purple-300"
-        disabled={isLoading}
+        class="btn bg-yellow-400 text-black hover:bg-yellow-400 rounded"
+        on:click={openCreateModal}>New Entry</button
       >
-        {showNewEntryForm ? "Cancel" : "New Entry"}
-      </button>
-    </div>
+      <dialog id="my_modal" class="modal">
+        <div class="modal-box">
+          <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">
+              {mode === "edit"
+                ? "Edit Journal Entry"
+                : "Create New Journal Entry"}
+            </h2>
 
-    <!-- New Entry Form -->
-    {#if showNewEntryForm && !isLoading}
-      <div class="md:col-span-3 bg-white rounded-lg shadow p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">New Journal Entry</h2>
-        <form on:submit|preventDefault={addNewEntry} class="space-y-4">
-          <div>
-            <label
-              for="title"
-              class="block text-sm font-medium text-gray-700 mb-1">Title</label
-            >
-            <input
-              id="title"
-              type="text"
-              bind:value={newEntry.title}
-              required
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            />
+            {#if success}
+              <div class="mb-6 p-4 bg-green-100 text-green-700 rounded-md">
+                {mode === "edit"
+                  ? "Journal entry updated successfully!"
+                  : "Journal entry created successfully!"}
+              </div>
+            {/if}
+
+            {#if error}
+              <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
+                {error}
+              </div>
+            {/if}
+
+            <form on:submit|preventDefault={handleSubmit} class="space-y-6">
+              <div>
+                <label
+                  for="title"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  bind:value={title}
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Enter a title for your journal entry"
+                  required
+                />
+              </div>
+
+              <div>
+                <label
+                  for="content"
+                  class="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Content *
+                </label>
+                <textarea
+                  id="content"
+                  bind:value={content}
+                  rows="6"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Write your journal entry here..."
+                  required
+                ></textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                  Tags
+                </label>
+                <div class="flex items-center">
+                  <input
+                    type="text"
+                    bind:value={tagInput}
+                    class="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    placeholder="Add a tag"
+                  />
+                  <button
+                    type="button"
+                    on:click={addTag}
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    Add
+                  </button>
+                </div>
+
+                {#if tags.length > 0}
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    {#each tags as tag, index}
+                      <div
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800"
+                      >
+                        {tag}
+                        <button
+                          type="button"
+                          on:click={() => removeTag(index)}
+                          class="ml-1.5 inline-flex items-center justify-center h-4 w-4 rounded-full text-indigo-400 hover:text-indigo-600 focus:outline-none"
+                        >
+                          <span class="sr-only">Remove tag</span>
+                          &times;
+                        </button>
+                      </div>
+                    {/each}
+                  </div>
+                {/if}
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  class="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+                >
+                  {#if loading}
+                    Saving...
+                  {:else}
+                    Save Journal Entry
+                  {/if}
+                </button>
+              </div>
+            </form>
           </div>
-          <div>
-            <label
-              for="content"
-              class="block text-sm font-medium text-gray-700 mb-1"
-              >Content</label
-            >
-            <textarea
-              id="content"
-              bind:value={newEntry.content}
-              required
-              rows="4"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-            ></textarea>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label
-                for="mood"
-                class="block text-sm font-medium text-gray-700 mb-1">Mood</label
-              >
-              <input
-                id="mood"
-                type="text"
-                bind:value={newEntry.mood}
-                placeholder="How are you feeling?"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
-            </div>
-            <div>
-              <label
-                for="tags"
-                class="block text-sm font-medium text-gray-700 mb-1"
-                >Tags (comma separated)</label
-              >
-              <input
-                id="tags"
-                type="text"
-                bind:value={newEntry.tags}
-                placeholder="work, ideas, etc."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-              />
-            </div>
-          </div>
-          <div class="flex justify-end space-x-3">
-            <button
-              type="button"
-              on:click={resetNewEntryForm}
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Save Entry
-            </button>
-          </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
         </form>
-      </div>
-    {/if}
+      </dialog>
+    </div>
 
     <!-- Journal Entries List -->
     <div class="md:col-span-3">
@@ -423,13 +611,19 @@
                   class="flex justify-between items-center text-xs text-gray-500"
                 >
                   <span>{formatDate(entry.createdAt)}</span>
-                  {#if entry.isPublic}
-                    <span
-                      class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800"
-                    >
-                      Public
-                    </span>
-                  {/if}
+
+                  <button
+                    class="text-blue-500 btn hover:text-blue-700 btn btn-md rounded-2xl bg-white shadow-md"
+                    on:click={() => openEditModal(entry)}
+                  >
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button
+                    class="text-red-500 hover:text-red-700 btn btn-md rounded-2xl bg-white shadow-md"
+                    on:click={() => deleteEntry(entry.id)}
+                  >
+                    <i class="bi bi-trash3"></i>
+                  </button>
                 </div>
               </div>
             </div>

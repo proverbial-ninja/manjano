@@ -12,21 +12,22 @@
     "@astrojs/svelte": "^7.0.6",
     "@astrojs/vercel": "^8.1.2",
     "@better-auth/expo": "^1.2.4",
-    "@tailwindcss/vite": "^4.0.14",
+    "@tailwindcss/vite": "^4.0.16",
     "astro": "^5.5.3",
     "better-auth": "^1.2.4",
-    "daisyui": "^5.0.6",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.1",
     "pg": "^8.14.1",
     "quill": "^2.0.3",
     "svelte": "^5.23.2",
-    "tailwindcss": "^4.0.14",
+    "sweetalert2": "^11.17.2",
+    "tailwindcss": "^4.0.16",
     "typescript": "^5.8.2"
   },
   "devDependencies": {
     "@types/pg": "^8.11.11",
     "@zerodevx/svelte-toast": "^0.9.6",
+    "daisyui": "^5.0.9",
     "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3"
   }

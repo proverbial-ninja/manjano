@@ -9,7 +9,11 @@ export async function GET({ url, locals }) {
     .from(journalEntry)
     .where(eq(journalEntry.userId, userID));
 
-  return new Response(JSON.stringify(entries), {
+  const sortedEntries = entries.sort((a, b) => {
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  });
+
+  return new Response(JSON.stringify(sortedEntries), {
     status: 200,
     headers: {
       "Content-Type": "application/json",

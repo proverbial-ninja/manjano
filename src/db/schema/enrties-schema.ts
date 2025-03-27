@@ -14,7 +14,7 @@ export const journalEntry = pgTable("journal_entry", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   content: text("content").notNull(),
-  mood: text("content"),
+  mood: text("mood"),
   isPublic: boolean("is_public").notNull().default(false),
   tags: jsonb(),
   metadata: jsonb(),
