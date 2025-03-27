@@ -2,6 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { authClient } from "../lib/auth-client";
   import { toast } from "@zerodevx/svelte-toast";
+  import { onMount } from "svelte";
   // Create a dispatcher to emit events to parent components
   const dispatch = createEventDispatcher();
 
@@ -13,6 +14,14 @@
   let name = "";
   let isSubmitting = false;
   let error = "";
+
+  onMount(async () => {
+    const { data } = await authClient.getSession();
+
+    if (data) {
+      window.location.href = "/journal";
+    }
+  });
 
   // Form validation
   $: passwordsMatch = password === confirmPassword;

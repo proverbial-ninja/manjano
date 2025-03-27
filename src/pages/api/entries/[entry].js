@@ -48,3 +48,41 @@ export async function POST({ params, request, url, locals }) {
     },
   });
 }
+
+export async function GET({ params, locals }) {
+  const userID = locals.user.id;
+  const entry_id = params.entry;
+
+  try {
+    const entry = await db
+      .select()
+      .from(journalEntry)
+      .where(
+        and(eq(journalEntry.userId, userID), eq(journalEntry.id, entry_id))
+      )
+      .limit(1);
+
+    if (entry.length === 0) {
+      return new Response(JSON.stringify({ message: "Entry not found" }), {
+        status: 404,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
+    return new Response(JSON.stringify(entry[0]), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ message: "Error retrieving entry" }), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+}

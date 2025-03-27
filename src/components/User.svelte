@@ -5,7 +5,12 @@
   let name = "";
   onMount(async () => {
     const { data } = await authClient.getSession();
-    name = data.user.name;
+
+    if (!data) {
+      window.location.href = "/";
+    } else {
+      name = data.user.name;
+    }
   });
 
   function logout() {
