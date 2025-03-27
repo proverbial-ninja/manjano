@@ -1,48 +1,100 @@
-# Astro Starter Kit: Basics
+# Manjano - Simple Journaling App
 
-```sh
-npm create astro@latest -- --template basics
-```
+![Manjano App Icon](<https://manjano.vercel.app/logo.svg>#center)
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+Manjano is a simple journaling application built for an interview, focusing on core functionalities and clean architecture.
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Getting Started
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+1.  **Clone the repository:**
 
-## 🚀 Project Structure
+    ```bash
+    git clone <your-repository-url>
+    cd manjano
+    ```
 
-Inside of your Astro project, you'll see the following folders and files:
+2.  **Install dependencies:**
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+    ```bash
+    npm install
+    ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+3.  **Environment Variables:**
 
-## 🧞 Commands
+    Create a `.env` file in the root directory and add the following environment variables:
 
-All commands are run from the root of the project, from a terminal:
+    ```
+    DATABASE_URL="postgresql://user:password@host:port/database"
+    BASE_URL="http://localhost:4321" # or your deployed url
+    GEMINI_API_KEY #gemini api key
+    ```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+    - `DATABASE_URL`: The connection string for your PostgreSQL database.
+    - `BASE_URL`: The base URL of your application.
+    - `GEMINI_API_KEY`: A secret string used for Gemini AI.
 
-## 👀 Want to learn more?
+4.  **Database Migrations and Seeding:**
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+    - **Migrations:**
+
+      ```bash
+      npx drizzle-kit push
+      ```
+
+    - **Seeding (Optional):**
+
+      To seed the database with initial data, run the following command:
+
+      ```bash
+      npm run seed
+      ```
+
+      This will populate the database with some example journal entries.
+
+5.  **Run the development server:**
+
+    ```bash
+    npm run dev
+    ```
+
+    Open your browser and navigate to `http://localhost:4321`.
+
+## API Endpoints
+
+- **Authentication Endpoints:**
+  - See [AUTH.md](AUTH.md) for details on authentication routes.
+- **Journal Entry Endpoints:**
+  - See [ENTRIES.md](ENTRIES.md) for details on journal entry API routes.
+
+## Login Details
+
+- **Username:** `username@example.com`
+- **Password:** `00000000`
+
+## Live Version
+
+A live version of the application is available at [manjano.vercel.app](https://manjano.vercel.app). You can use the same login credentials as above.
+
+## Choices and Reasons
+
+- **Drizzle ORM:**
+  - Chosen for its type safety and performance. Drizzle's schema definitions and query builders offer a more robust and predictable database interaction compared to traditional ORMs. It also has a good developer experience.
+- **Better Auth (NextAuth.js):**
+  - Selected for its ease of integration with Next.js and comprehensive authentication features. It simplifies handling user authentication, including various providers and session management.
+
+## Potential Improvements
+
+- **Advanced Filtering:**
+  - Implement more effective filtering options in the journal entry queries, allowing users to search and filter by date ranges, keywords, or tags.
+- **Rich Text Editor:**
+  - Integrate a rich text editor for journal entries to support formatting, images, and other media.
+- **UI/UX improvements:**
+  - Adding more UI/UX improvements to provide a better user experience.
+- **Testing:**
+  - Adding unit and integration tests.
+
+## Privacy and Data Usage
+
+- Implement an **opt-in** feature for AI analysis, clearly explaining the data usage and ensuring user consent.
+- Provide transparency about the AI model and its limitations.
+- Provide a way for users to delete their analyzed data.
