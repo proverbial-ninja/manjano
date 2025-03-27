@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { get_mood_emoji } from "../../../lib/analysis";
 export async function GET({ url, locals }) {
   const userID = locals.user.id;
-  console.log(userID);
+
   const entries = await db
     .select()
     .from(journalEntry)

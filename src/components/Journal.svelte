@@ -393,7 +393,7 @@
         />
       </div>
       <button
-        class="btn bg-yellow-400 text-black hover:bg-yellow-400 rounded"
+        class="btn btn-md bg-yellow-400 text-black hover:bg-yellow-400 rounded-2xl shadow-md"
         on:click={openCreateModal}>New Entry</button
       >
       <dialog id="my_modal" class="modal">
@@ -583,13 +583,12 @@
               <div class="p-6">
                 <div class="flex justify-between items-start mb-2">
                   <h3 class="text-lg font-semibold text-gray-800">
-                    {entry.title}
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-2xl font-medium"
+                    >
+                      {entry.mood}
+                    </span>{entry.title}
                   </h3>
-                  <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                  >
-                    {entry.mood}
-                  </span>
                 </div>
                 <p class="text-gray-600 mb-4">{entry.content}</p>
 

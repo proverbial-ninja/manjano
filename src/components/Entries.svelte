@@ -22,7 +22,6 @@
     // In a real application, you would get the userId from your auth system
     // This is just a placeholder
     authClient.getSession().then((session) => {
-      console.log(session.data.user.id);
       userId = session.data.user.id;
     });
   });

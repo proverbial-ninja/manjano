@@ -4,11 +4,9 @@ import { eq, and } from "drizzle-orm";
 import { get_mood_emoji } from "../../../lib/analysis";
 
 export async function DELETE({ url, locals, params }) {
-  console.log(params);
   const userID = locals.user.id;
   const entry_id = params.entry;
-  console.log(userID);
-  console.log(entry_id);
+
   try {
     await db
       .delete(journalEntry)
