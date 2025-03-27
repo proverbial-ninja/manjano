@@ -1,15 +1,17 @@
 # Manjano - Simple Journaling App
 
-![Manjano App Icon](<https://manjano.vercel.app/logo.svg>#center)
+<p align="center">
+  <img src="https://manjano.vercel.app/logo.svg" width="200" alt="Manjano App Icon">
+</p>
 
-Manjano is a simple journaling application built for an interview, focusing on core functionalities and clean architecture.
+Manjano is a simple journaling application.
 
 ## Getting Started
 
 1.  **Clone the repository:**
 
     ```bash
-    git clone <your-repository-url>
+    git clone <https://github.com/proverbial-ninja/manjano.git>
     cd manjano
     ```
 

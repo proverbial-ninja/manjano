@@ -1,6 +1,7 @@
 import { journalEntry } from "../../../db/schema/enrties-schema";
 import { db } from "../../../db";
 import { eq } from "drizzle-orm";
+import { get_mood_emoji } from "../../../lib/analysis";
 export async function GET({ url, locals }) {
   const userID = locals.user.id;
   console.log(userID);
@@ -24,8 +25,10 @@ export async function GET({ url, locals }) {
 export async function POST({ params, request, url, locals }) {
   const userID = locals.user.id;
   const data = await request.json();
+  let emoji = await get_mood_emoji(data.content);
   const newEntry = await db.insert(journalEntry).values({
     ...data,
+    mood: emoji,
     userId: userID,
   });
 

@@ -1,6 +1,8 @@
 import { journalEntry } from "../../../db/schema/enrties-schema";
 import { db } from "../../../db";
 import { eq, and } from "drizzle-orm";
+import { get_mood_emoji } from "../../../lib/analysis";
+
 export async function DELETE({ url, locals, params }) {
   console.log(params);
   const userID = locals.user.id;
@@ -31,12 +33,14 @@ export async function DELETE({ url, locals, params }) {
 }
 
 export async function POST({ params, request, url, locals }) {
+  let emoji = await get_mood_emoji(data.content);
+
   const userID = locals.user.id;
   const entry_id = params.entry;
   const data = await request.json();
   const updatedEntry = await db
     .update(journalEntry)
-    .set({ ...data })
+    .set({ ...data, mood: emoji })
     .where(and(eq(journalEntry.userId, userID), eq(journalEntry.id, entry_id)));
 
   return new Response(JSON.stringify(updatedEntry), {
