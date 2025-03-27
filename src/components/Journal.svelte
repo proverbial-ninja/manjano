@@ -286,7 +286,7 @@
       <img src="/favicon.png" class="w-12 h-12" alt="" />
       <div>
         <h1 class="text-3xl font-bold text-gray-800 mb-2">Manjano</h1>
-        <p class="text-gray-600">My Journal , My Reflectios</p>
+        <p class="text-gray-600">My Journal , My Reflections</p>
       </div>
     </span>
     <div><User /></div>
