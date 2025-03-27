@@ -19,12 +19,13 @@ This endpoint allows users to sign up for an account using their email and a pas
 - **Body Parameters**
   - `email` (string, required): The user's email address.
   - `password` (string, required): A password for the user's account.
+  - `name` (string, optional): The user's display name.
 
 ### Response
 
 - **201 Created**
 
-  - **Body**: A JSON object containing a success message and the user's information.
+  - **Body**: A JSON object containing a success message and the user's information. Authentication tokens are set in cookies.
 
 - **400 Bad Request**
   - **Body**: A JSON object with an error message indicating invalid input data.
@@ -37,7 +38,7 @@ Content-Type: application/json
 
 {
   "email": "user@example.com",
-  "password": "securePassword123"
+  "password": "securePassword123",
   "name": "John Doe"
 }
 ```
@@ -46,7 +47,6 @@ Content-Type: application/json
 
 ```json
 {
-  "token": "2iyAQFK5aViX3vr4A4faR5rp6EaOdxJp",
   "user": {
     "id": "4jMT8xQRc6tBKa6fEU1W0n1ocoIJDcQs",
     "email": "user@example.com",
@@ -82,7 +82,7 @@ This endpoint allows users to log in to their account using their email and pass
 
 - **200 OK**
 
-  - **Body**: A JSON object containing an authentication token and user information.
+  - **Body**: A JSON object containing user information. Authentication tokens are set in cookies.
 
 - **401 Unauthorized**
   - **Body**: A JSON object with an error message indicating invalid credentials.
@@ -103,7 +103,6 @@ Content-Type: application/json
 
 ```json
 {
-  "token": "2iyAQFK5aViX3vr4A4faR5rp6EaOdxJp",
   "user": {
     "id": "4jMT8xQRc6tBKa6fEU1W0n1ocoIJDcQs",
     "email": "user@example.com",
